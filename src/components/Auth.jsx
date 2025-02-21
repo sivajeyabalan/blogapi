@@ -32,6 +32,7 @@ import axios from "axios";
         />
         <button type="submit">Login</button>
       </form>
+      <div className="redirect" ><p> dont have a account <a href="/register">Register</a></p></div>
     </div>
   );
 };

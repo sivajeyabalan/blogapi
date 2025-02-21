@@ -55,42 +55,49 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="container">
-      <h1>Create Post</h1>
-      {error && <div className="error">{error}</div>}
-      {success && <div className="success">{success}</div>}
-      <form onSubmit={handleSubmit}>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Create Post</h1>
+      {error && <div className="bg-red-100 text-red-700 p-2 mb-4">{error}</div>}
+      {success && <div className="bg-green-100 text-green-700 p-2 mb-4">{success}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="form-group">
-          <label htmlFor="title">Title</label>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
           <input
             type="text"
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
           />
         </div>
         <div className="form-group">
-          <label htmlFor="content">Content</label>
+          <label htmlFor="content" className="block text-sm font-medium text-gray-700">Content</label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
           />
         </div>
         <div className="form-group">
-          <label htmlFor="image">Upload Image</label>
-          <input type="file" id="image" accept="image/*" onChange={handleImageChange} />
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Upload Image</label>
+          <input type="file" id="image" accept="image/*" onChange={handleImageChange} className="mt-1 block w-full" />
         </div>
-        <div className="form-group">
-          <label htmlFor="isPublished">Is Published</label>
+        <div className="form-group flex items-center">
           <input
             type="checkbox"
             id="isPublished"
             checked={isPublished}
             onChange={(e) => setIsPublished(e.target.checked)}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
           />
+          <label htmlFor="isPublished" className="ml-2 block text-sm font-medium text-gray-700">Is Published</label>
         </div>
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
           {loading ? "Creating..." : "Create Post"}
         </button>
       </form>

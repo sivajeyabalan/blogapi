@@ -4,7 +4,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Home from "./components/Home";
 import  {Login , Register} from "./components/Auth";
 import "./App.css";
-
+import CreatePost from "./components/CreatePost";
 function App() {
   return (
     <AuthProvider>
@@ -17,6 +17,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create-post"
+            element={
+              <ProtectedRoute>
+                <CreatePost />
               </ProtectedRoute>
             }
           />
