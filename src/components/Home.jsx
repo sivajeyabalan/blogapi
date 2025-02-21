@@ -4,13 +4,21 @@ import "../styles/Home.css"; // Import your plain CSS
 
 const Home = () => {
   const [posts, setPost] = useState([]);
-
+  const token = localStorage.getItem("token");
+  
+    if (!token) {
+      console.log(token + "token error");
+    }
   useEffect(() => {
     axios
-      .get("/api/posts")
+      .get("http://localhost:8080/api/posts/" , {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+  })
       .then((res) => setPost(res.data))
       .catch((err) => console.log(err));
-  }, []);
+  }, [token]);
 
   return (
     <div className="container">

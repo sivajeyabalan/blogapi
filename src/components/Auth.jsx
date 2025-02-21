@@ -1,42 +1,37 @@
-import axios from "axios";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-
-export const Login = () => {
+import axios from "axios";
+ export const Login = () => {
+  const { login } = useAuth(); // ✅ Get login function from AuthContext
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", { email, password });
-      console.log(response.data);
-      localStorage.setItem("token", response.data.token);
-      setIsLoading(false);
-      navigate("/");
-    } catch (error) {
-      setError(error.response?.data?.message || "Invalid email or password");
-      setIsLoading(false);
-    }
+    await login(email, password); // ✅ Calls login from AuthContext
+    navigate("/"); // ✅ Redirect to home on success
   };
 
   return (
     <div>
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <label>Email:</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit" disabled={isLoading}>{isLoading ? "Logging in..." : "Login"}</button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit">Login</button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div className="redirect"><p>New User <a href="/register">To register </a></p></div>
     </div>
   );
 };
@@ -54,7 +49,7 @@ export const Register = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:8080/api/register", { email, password });
+      const response = await axios.post("http://localhost:8080/api/auth/register", { email, password });
       console.log(response.data);
       setIsLoading(false);
       navigate("/login");

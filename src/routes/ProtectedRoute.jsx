@@ -5,8 +5,11 @@ import PropTypes from 'prop-types';
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
 
+   // Shows loading only briefly
+
   return user ? children : <Navigate to="/login" />;
 };
+
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
