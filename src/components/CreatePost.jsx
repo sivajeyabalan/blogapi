@@ -76,7 +76,7 @@ const CreatePost = () => {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            className="mt-1 block w-full border i border-gray-300 rounded-md shadow-sm p-2"
           />
         </div>
         <div className="form-group">
@@ -101,6 +101,9 @@ const CreatePost = () => {
           {loading ? "Creating..." : "Create Post"}
         </button>
       </form>
+      <div className="redirect mt-4">
+        <a href="/" className="text-blue-500 hover:underline">Back to Home</a>
+        </div>
     </div>
   );
 };

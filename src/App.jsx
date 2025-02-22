@@ -5,6 +5,7 @@ import Home from "./components/Home";
 import  {Login , Register} from "./components/Auth";
 import "./App.css";
 import CreatePost from "./components/CreatePost";
+import Profile from "./components/userProfile";
 function App() {
   return (
     <AuthProvider>
@@ -27,6 +28,14 @@ function App() {
                 <CreatePost />
               </ProtectedRoute>
             }
+          />
+          <Route path="*" element={<h1>404 Not Found</h1>} />
+          <Route path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
           />
         </Routes>
       </Router>
