@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setLoading(false); // ✅ Stop loading if no token is found
+      setLoading(false);
       return;
     }
 
@@ -20,13 +20,23 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.get("http://localhost:8080/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      console.log("Fetch user response:", res.data); // Log the user data
+
+      // Ensure we have a user ID
+      const userId = res.data.id || res.data.userId;
+      if (userId) {
+        localStorage.setItem("userId", userId);
+        console.log("Updated userId from /me endpoint:", userId);
+      }
+
       setUser(res.data);
     } catch (error) {
       console.error(
         "Error fetching user:",
         error.response?.data || error.message
       );
-      logout(); // If token is invalid, log out the user
+      logout();
     } finally {
       setLoading(false);
     }
@@ -40,13 +50,28 @@ export const AuthProvider = ({ children }) => {
         password,
       });
 
+      console.log("Login response:", res.data); // Log the full response
+
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token); // Store token
-        localStorage.setItem("userId", res.data.user.id); // Store user ID
-        await fetchUser(); // Fetch user after login
+        localStorage.setItem("token", res.data.token);
+
+        // Handle different possible response structures
+        const userId = res.data.user?.id || res.data.userId || res.data.id;
+
+        if (userId) {
+          localStorage.setItem("userId", userId);
+          console.log("Stored userId:", userId); // Log the stored userId
+        } else {
+          console.warn("No userId found in response:", res.data);
+        }
+
+        await fetchUser();
+      } else {
+        throw new Error("No token received from server");
       }
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
+      throw error;
     }
   };
 

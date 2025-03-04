@@ -5,7 +5,7 @@ import Home from "./components/Home";
 import  {Login , Register} from "./components/Auth";
 import "./App.css";
 import CreatePost from "./components/CreatePost";
-import Profile from "./components/userProfile";
+import Profile from "./components/Profile";
 function App() {
   return (
     <AuthProvider>

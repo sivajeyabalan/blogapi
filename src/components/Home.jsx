@@ -212,21 +212,7 @@ const Home = () => {
           {posts.map((post) => (
             <div
               key={post.id}
-              className={`post p-6 border rounded-lg shadow-lg relative ${(() => {
-                console.log("Post authorId:", post.authorId);
-                console.log(
-                  "LocalStorage userId:",
-                  localStorage.getItem("userId")
-                );
-                console.log(
-                  "Comparison result:",
-                  post.authorId === parseInt(localStorage.getItem("userId"))
-                );
-                return post.authorId ===
-                  parseInt(localStorage.getItem("userId"))
-                  ? "border-green-400 bg-green-50/50"
-                  : "bg-white";
-              })()}`}
+              className={`post p-6 border rounded-lg shadow-lg relative bg-white`}
             >
               {(() => {
                 console.log("Checking authorId for icon:", post.authorId);
@@ -260,13 +246,7 @@ const Home = () => {
               )}
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center space-x-2">
-                  <h2
-                    className={`text-xl font-semibold ${
-                      post.authorId === parseInt(localStorage.getItem("userId"))
-                        ? "text-green-900"
-                        : "text-gray-900"
-                    }`}
-                  >
+                  <h2 className="text-xl font-semibold text-gray-900">
                     {post.title}
                   </h2>
                 </div>
