@@ -32,15 +32,27 @@ const CreatePost = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
-      formData.append("isPublished", isPublished);
-      if (image) formData.append("image", image); // Append image if selected
+      formData.append("published", isPublished);
+      if (image) formData.append("image", image);
 
-      await axios.post("http://localhost:8080/api/posts", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      console.log("Form Data:");
+      console.log("Title:", title);
+      console.log("Content:", content);
+      console.log("Published:", isPublished);
+      console.log("Image:", image);
+
+      const response = await axios.post(
+        "http://localhost:8080/api/posts",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Server Response:", response.data);
 
       setSuccess("Post created successfully!");
       setTitle("");
@@ -48,6 +60,7 @@ const CreatePost = () => {
       setImage(null);
       setIsPublished(false);
     } catch (error) {
+      console.error("Error creating post:", error.response?.data);
       setError("Failed to create post. Please try again." + error);
     } finally {
       setLoading(false);
@@ -131,7 +144,7 @@ const CreatePost = () => {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-black bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           {loading ? "Creating..." : "Create Post"}
         </button>
