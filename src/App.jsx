@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Home from "./components/Home";
-import  {Login , Register} from "./components/Auth";
+import { Login, Register } from "./components/Auth";
 import "./App.css";
 import CreatePost from "./components/CreatePost";
 import Profile from "./components/Profile";
+import FullPost from "./components/FullPost";
 function App() {
   return (
     <AuthProvider>
@@ -30,12 +31,21 @@ function App() {
             }
           />
           <Route path="*" element={<h1>404 Not Found</h1>} />
-          <Route path="/profile" 
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/posts/:id"
+            element={
+              <ProtectedRoute>
+                <FullPost />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </Router>

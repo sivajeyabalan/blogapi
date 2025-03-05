@@ -110,9 +110,9 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Your Posts</h1>
+        <h1 className="text-3xl font-bold text-primary">Your Posts</h1>
         <button
           onClick={handleLogout}
           className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -133,7 +133,7 @@ const Profile = () => {
           onClick={() => setActiveTab("published")}
           className={`px-4 py-2 ${
             activeTab === "published"
-              ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
+              ? "border-b-2 border-primary text-primary font-semibold"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
@@ -143,7 +143,7 @@ const Profile = () => {
           onClick={() => setActiveTab("unpublished")}
           className={`px-4 py-2 ${
             activeTab === "unpublished"
-              ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
+              ? "border-b-2 border-primary text-primary font-semibold"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
@@ -225,7 +225,7 @@ const Profile = () => {
           </p>
           <button
             onClick={() => navigate("/create-post")}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-light"
           >
             Create New Post
           </button>
@@ -237,7 +237,7 @@ const Profile = () => {
         <h2 className="text-lg font-semibold mb-4">Post Statistics</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-white rounded shadow">
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-primary">
               {posts.published.length}
             </div>
             <div className="text-sm text-gray-600">Published Posts</div>

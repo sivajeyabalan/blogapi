@@ -30,31 +30,31 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-background min-h-screen">
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
-        <p>Error: {error}</p>
+        <p className="text-red-500">Error: {error}</p>
       ) : (
         <div>
-          <h1 className="text-2xl font-bold mb-4">User Profile</h1>
-          <p>Welcome, {getUsernameFromEmail(user.email)}</p>
-          <p>Email: {user.email}</p>
-          <p>Role: {user.role}</p>
-          <p>Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
-          <h2 className="text-xl font-semibold mt-6 mb-4">Posts</h2>
+          <h1 className="text-3xl font-bold text-primary mb-4">User Profile</h1>
+          <p className="text-gray-700">Welcome, {getUsernameFromEmail(user.email)}</p>
+          <p className="text-gray-700">Email: {user.email}</p>
+          <p className="text-gray-700">Role: {user.role}</p>
+          <p className="text-gray-700">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
+          <h2 className="text-2xl font-semibold text-primary mt-6 mb-4">Posts</h2>
           {user.posts.length > 0 ? (
-            <ul>
+            <ul className="space-y-4">
               {user.posts.map((post) => (
-                <li key={post.id} className="mb-2">
-                  <h3 className="text-lg font-bold">{post.title}</h3>
-                  <p>{post.content}</p>
+                <li key={post.id} className="bg-white p-4 rounded shadow">
+                  <h3 className="text-xl font-bold text-gray-900">{post.title}</h3>
+                  <p className="text-gray-700">{post.content}</p>
                   <p className="text-sm text-gray-500">Posted on: {new Date(post.createdAt).toLocaleDateString()}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No posts available.</p>
+            <p className="text-gray-500">No posts available.</p>
           )}
         </div>
       )}

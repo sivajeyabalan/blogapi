@@ -8,6 +8,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [fullPost, setFullPost] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -145,6 +146,7 @@ const Home = () => {
   const closeCommentsModal = () => {
     setSelectedPost(null);
   };
+
   const handlePublishPost = async (postId) => {
     try {
       setError(null);
@@ -168,6 +170,14 @@ const Home = () => {
     }
   };
 
+  const handlePostClick = (postId) => {
+    navigate(`/posts/${postId}`);
+  };
+
+  const closeFullPostModal = () => {
+    setFullPost(null);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -177,11 +187,11 @@ const Home = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={handleProfileRedirect}
-          className="text-blue-500 hover:underline"
+          className="text-primary hover:underline"
         >
           Go to Profile
         </button>
@@ -203,7 +213,7 @@ const Home = () => {
       )}
 
       {posts ? (
-        <h1 className="text-2xl font-bold mb-4">Blog Posts</h1>
+        <h1 className="text-3xl font-bold text-primary mb-4">Blog Posts</h1>
       ) : (
         <p>Loading...</p>
       )}
@@ -212,7 +222,8 @@ const Home = () => {
           {posts.map((post) => (
             <div
               key={post.id}
-              className={`post p-6 border rounded-lg shadow-lg relative bg-white`}
+              className="post p-6 border rounded-lg shadow-lg relative bg-white cursor-pointer"
+              onClick={() => handlePostClick(post.id)}
             >
               {(() => {
                 console.log("Checking authorId for icon:", post.authorId);
@@ -388,11 +399,93 @@ const Home = () => {
         <p>No posts available.</p>
       )}
       <p className="mt-6">
-        <a href="/create-post" className="text-blue-500 hover:underline">
+        <a href="/create-post" className="text-primary hover:underline">
           Create Post
         </a>
         <br />
       </p>
+
+      {/* Full Post Modal */}
+      {fullPost && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">{fullPost.title}</h3>
+                <button
+                  onClick={closeFullPostModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-gray-700 mb-4">{fullPost.content}</p>
+              {fullPost.imageUrl && (
+                <img
+                  src={`http://localhost:8080${fullPost.imageUrl}`}
+                  alt={fullPost.title}
+                  className="w-full h-48 object-cover mb-4 rounded"
+                />
+              )}
+              <div className="text-sm text-gray-600 mb-2">
+                Posted by: {fullPost.author?.email}
+              </div>
+              <div className="text-sm text-gray-600 mb-2">
+                {new Date(fullPost.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+              <div className="border-t pt-3">
+                <h3 className="text-sm font-semibold mb-2">Comments</h3>
+                {fullPost.comments && fullPost.comments.length > 0 ? (
+                  <div className="space-y-3">
+                    {fullPost.comments.map((comment) => (
+                      <div key={comment.id} className="text-sm">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-gray-800">
+                            {comment.author?.email}
+                          </span>
+                          <span className="text-gray-500 text-xs">
+                            {new Date(comment.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 mt-1">{comment.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No comments available.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Comments Modal */}
       {selectedPost && (
