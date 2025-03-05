@@ -11,6 +11,8 @@ const Home = () => {
   const [fullPost, setFullPost] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (!token) {
@@ -21,23 +23,29 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, navigate]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get("http://localhost:8080/api/posts/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `http://localhost:8080/api/posts/paginated?page=${page}&limit=5`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       // Ensure we're handling an array of posts
-      let postsData = Array.isArray(response.data)
-        ? response.data
-        : response.data.posts || [];
+      let postsData = Array.isArray(response.data.posts)
+        ? response.data.posts
+        : [];
 
-      // Show all posts instead of filtering
+      console.log("Fetched posts data:", response.data);
+      console.log("Posts array:", postsData);
+
       setPost(postsData);
+      setTotalPages(response.data.totalPages || 1);
     } catch (err) {
       console.error("Error fetching posts:", err);
       setError(
@@ -53,10 +61,22 @@ const Home = () => {
     }
   };
 
-  // Add a refresh function to manually refresh posts
-  const refreshPosts = () => {
-    fetchPosts();
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
   };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -81,7 +101,7 @@ const Home = () => {
       );
       setCommentText((prev) => ({ ...prev, [postId]: "" }));
       // Refresh posts after adding a comment
-      refreshPosts();
+      fetchPosts(currentPage);
     } catch (error) {
       setError("Failed to add comment. Please try again.");
       console.error("Error adding comment:", error);
@@ -105,7 +125,7 @@ const Home = () => {
         }
       );
       // Refresh posts after liking
-      refreshPosts();
+      fetchPosts(currentPage);
     } catch (error) {
       setError("Failed to like post. Please try again.");
       console.error("Error liking post:", error);
@@ -160,7 +180,7 @@ const Home = () => {
         }
       );
       // Refresh posts after publishing
-      refreshPosts();
+      fetchPosts(currentPage);
     } catch (error) {
       setError("Failed to publish post. Please try again.");
       console.error("Error publishing post:", error);
@@ -399,11 +419,32 @@ const Home = () => {
         <p>No posts available.</p>
       )}
       <p className="mt-6">
-        <a href="/create-post" className="text-primary hover:underline">
+        <a href="/create-post" className="text-black hover:underline">
           Create Post
         </a>
         <br />
       </p>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-primary text-black rounded hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-light"
+        >
+          Previous
+        </button>
+        <span className="text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-primary text-black rounded hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-light"
+        >
+          Next
+        </button>
+      </div>
 
       {/* Full Post Modal */}
       {fullPost && (

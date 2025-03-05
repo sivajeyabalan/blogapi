@@ -237,7 +237,7 @@ const Profile = () => {
         <h2 className="text-lg font-semibold mb-4">Post Statistics</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-white rounded shadow">
-            <div className="text-2xl font-bold text-primary">
+            <div className="text-2xl font-bold text-yellow-600">
               {posts.published.length}
             </div>
             <div className="text-sm text-gray-600">Published Posts</div>
