@@ -96,7 +96,6 @@ export const Login = () => {
 export const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [profession, setProfession] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -110,13 +109,10 @@ export const Register = () => {
       const response = await axios.post(`${AUTH_URL}/register`, {
         email,
         password,
-        profession,
       });
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("userId", response.data.userId);
-        navigate("/");
+      if (response.data) {
+        navigate("/login");
       }
     } catch (error) {
       setError(error.response?.data?.message || "Registration failed");
@@ -155,19 +151,6 @@ export const Register = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700 text-lg transition-all"
               placeholder="Enter your password"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-800 text-lg font-semibold mb-2">
-              Profession
-            </label>
-            <input
-              type="text"
-              value={profession}
-              onChange={(e) => setProfession(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700 text-lg transition-all"
-              placeholder="Enter your profession"
               required
             />
           </div>

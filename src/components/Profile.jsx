@@ -229,10 +229,6 @@ const Profile = () => {
                     <span className="font-semibold">Email:</span>{" "}
                     {userProfile.email}
                   </p>
-                  <p className="text-xl text-gray-600">
-                    <span className="font-semibold">Profession:</span>{" "}
-                    {userProfile.profession || "Not specified"}
-                  </p>
                 </div>
               )}
             </div>

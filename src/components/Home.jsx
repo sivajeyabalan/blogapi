@@ -338,10 +338,6 @@ const Home = () => {
                         <p className="font-semibold text-gray-800">
                           {post.author?.email}
                         </p>
-                        <p className="text-sm text-gray-500">
-                          {post.author?.profession ||
-                            "Profession not specified"}
-                        </p>
                       </div>
                     </div>
 
