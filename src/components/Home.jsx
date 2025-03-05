@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const Home = () => {
   const [posts, setPost] = useState([]);
   const [commentText, setCommentText] = useState({});
@@ -29,7 +31,7 @@ const Home = () => {
       setLoading(true);
       setError(null);
       const response = await axios.get(
-        `http://localhost:8080/api/posts/paginated?page=${page}&limit=5`,
+        `${BASE_URL}/api/posts/paginated?page=${page}&limit=5`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -92,7 +94,7 @@ const Home = () => {
     try {
       setError(null);
       await axios.post(
-        `http://localhost:8080/api/posts/${postId}/comment`,
+        `${BASE_URL}/api/posts/${postId}/comment`,
         { content: commentText[postId] },
         {
           headers: {
@@ -117,7 +119,7 @@ const Home = () => {
     try {
       setError(null);
       await axios.post(
-        `http://localhost:8080/api/posts/${postId}/like`,
+        `${BASE_URL}/api/posts/${postId}/like`,
         {},
         {
           headers: {
@@ -143,7 +145,7 @@ const Home = () => {
   const handleProfileRedirect = async () => {
     try {
       setError(null);
-      const response = await axios.get("http://localhost:8080/api/profile", {
+      const response = await axios.get(`${BASE_URL}/api/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -172,7 +174,7 @@ const Home = () => {
     try {
       setError(null);
       await axios.patch(
-        `http://localhost:8080/api/posts/${postId}/publish`,
+        `${BASE_URL}/api/posts/${postId}/publish`,
         {},
         {
           headers: {
@@ -284,7 +286,7 @@ const Home = () => {
                   {post.imageUrl && (
                     <div className="relative h-48">
                       <img
-                        src={`http://localhost:8080${post.imageUrl}`}
+                        src={`${BASE_URL}${post.imageUrl}`}
                         alt={post.title}
                         className="w-full h-full object-cover"
                       />

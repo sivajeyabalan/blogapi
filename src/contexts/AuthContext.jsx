@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 
 const AuthContext = createContext();
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // ✅ Prevents infinite login loops
@@ -17,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const res = await axios.get("http://localhost:8080/api/auth/me", {
+      const res = await axios.get(`${BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -45,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   // Function to log in
   const login = async (email, password) => {
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", {
+      const res = await axios.post(`${BASE_URL}/api/auth/login`, {
         email,
         password,
       });

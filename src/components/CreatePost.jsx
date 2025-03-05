@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useState } from "react";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -41,16 +43,12 @@ const CreatePost = () => {
       console.log("Published:", isPublished);
       console.log("Image:", image);
 
-      const response = await axios.post(
-        "http://localhost:8080/api/posts",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/api/posts`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       console.log("Server Response:", response.data);
 

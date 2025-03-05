@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("published");
   const [posts, setPosts] = useState({ published: [], unpublished: [] });
@@ -30,14 +32,11 @@ const Profile = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8080/api/users/profile",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/api/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setUserProfile(response.data);
     } catch (err) {
       console.error("Error fetching user profile:", err);
@@ -52,18 +51,12 @@ const Profile = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log(
-        "Making API request to:",
-        "http://localhost:8080/api/posts/user/posts"
-      );
-      const response = await axios.get(
-        "http://localhost:8080/api/posts/user/posts",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      console.log("Making API request to:", `${BASE_URL}/api/posts/user/posts`);
+      const response = await axios.get(`${BASE_URL}/api/posts/user/posts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       console.log("API Response:", response);
       console.log("All posts from API:", response.data);
@@ -91,7 +84,7 @@ const Profile = () => {
   const handlePublishPost = async (postId) => {
     try {
       await axios.patch(
-        `http://localhost:8080/api/posts/${postId}/publish`,
+        `${BASE_URL}/api/posts/${postId}/publish`,
         {},
         {
           headers: {
@@ -111,7 +104,7 @@ const Profile = () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/posts/${postId}`, {
+      await axios.delete(`${BASE_URL}/api/posts/${postId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -143,7 +136,7 @@ const Profile = () => {
       }
 
       await axios.put(
-        `http://localhost:8080/api/posts/${postId}`,
+        `${BASE_URL}/api/posts/${postId}`,
         {
           title: updatedTitle,
           content: updatedContent,
@@ -183,7 +176,7 @@ const Profile = () => {
 
     try {
       await axios.put(
-        `http://localhost:8080/api/comments/${commentId}`,
+        `${BASE_URL}/api/comments/${commentId}`,
         { content: updatedContent },
         {
           headers: {
@@ -297,7 +290,7 @@ const Profile = () => {
               {post.imageUrl && (
                 <div className="relative h-48">
                   <img
-                    src={`http://localhost:8080${post.imageUrl}`}
+                    src={`${BASE_URL}${post.imageUrl}`}
                     alt={post.title}
                     className="w-full h-full object-cover"
                   />
@@ -352,12 +345,14 @@ const Profile = () => {
                   >
                     Edit
                   </button>
-                  <button
-                    onClick={() => handlePostClick(post.id)}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all"
-                  >
-                    View Full Post
-                  </button>
+                  {post.published && (
+                    <button
+                      onClick={() => handlePostClick(post.id)}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all"
+                    >
+                      View Full Post
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const FullPost = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -15,14 +17,11 @@ const FullPost = () => {
   useEffect(() => {
     const fetchPostDetails = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/posts/${id}/full`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${BASE_URL}/api/posts/${id}/full`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setPost(response.data);
       } catch (error) {
         console.error("Error fetching full post details:", error);
@@ -40,7 +39,7 @@ const FullPost = () => {
   const handleUpdateComment = async (commentId, updatedContent) => {
     try {
       await axios.put(
-        `http://localhost:8080/api/comments/${commentId}`,
+        `${BASE_URL}/api/comments/${commentId}`,
         { content: updatedContent },
         {
           headers: {
@@ -49,14 +48,11 @@ const FullPost = () => {
         }
       );
       // Refresh post to reflect updated comment
-      const response = await axios.get(
-        `http://localhost:8080/api/posts/${id}/full`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/api/posts/${id}/full`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setPost(response.data);
       setEditComment(null);
     } catch (error) {
@@ -99,7 +95,7 @@ const FullPost = () => {
           {post.imageUrl && (
             <div className="w-full h-96 relative">
               <img
-                src={`http://localhost:8080${post.imageUrl}`}
+                src={`${BASE_URL}${post.imageUrl}`}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />

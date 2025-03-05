@@ -3,6 +3,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const AUTH_URL = import.meta.env.VITE_AUTH_URL;
+
 export const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -77,7 +79,7 @@ export const Login = () => {
         )}
         <div className="text-center mt-6">
           <p className="text-gray-600 text-lg">
-            Dont have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a
               href="/register"
               className="text-blue-600 hover:text-blue-800 font-semibold"
@@ -105,14 +107,11 @@ export const Register = () => {
     setError(null);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/register",
-        {
-          email,
-          password,
-          profession,
-        }
-      );
+      const response = await axios.post(`${AUTH_URL}/register`, {
+        email,
+        password,
+        profession,
+      });
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
