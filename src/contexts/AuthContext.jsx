@@ -4,7 +4,9 @@ import PropTypes from "prop-types";
 
 const AuthContext = createContext();
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+// Use hardcoded URL instead of environment variables
+const BASE_URL = "https://blog-backend-77ds.onrender.com";
+const AUTH_URL = "https://blog-backend-77ds.onrender.com/api/auth";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -20,7 +22,11 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const res = await axios.get(`${BASE_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        
       });
 
       console.log("Fetch user response:", res.data); // Log the user data
@@ -47,10 +53,21 @@ export const AuthProvider = ({ children }) => {
   // Function to log in
   const login = async (email, password) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email,
-        password,
-      });
+      console.log("Logging in with email:", email, "and password:", password);
+      // Use AUTH_URL directly instead of BASE_URL + path to avoid potential double slashes
+      const res = await axios.post(
+        `${AUTH_URL}/login`,
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          
+        }
+      );
 
       console.log("Login response:", res.data); // Log the full response
 

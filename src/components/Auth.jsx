@@ -3,7 +3,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const AUTH_URL = import.meta.env.VITE_AUTH_URL;
+// Use hardcoded URL instead of environment variables
+const AUTH_URL = "https://blog-backend-77ds.onrender.com/api/auth";
 
 export const Login = () => {
   const { login } = useAuth();

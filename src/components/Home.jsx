@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+// Use hardcoded URL instead of environment variables
+const BASE_URL = "https://blog-backend-77ds.onrender.com";
 
 const Home = () => {
   const [posts, setPost] = useState([]);

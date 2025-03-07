@@ -1,7 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+// Use hardcoded URL instead of environment variables
+const BASE_URL = "https://blog-backend-77ds.onrender.com";
+const MAX_IMAGE_SIZE = 5242880; // 5MB
+const MAX_TITLE_LENGTH = 100;
+const MAX_CONTENT_LENGTH = 5000;
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
