@@ -23,6 +23,29 @@ const Home = () => {
       navigate("/login");
       return;
     }
+
+    // Get and store user email for comments if we have a token
+    const fetchUserEmail = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.data && response.data.email) {
+          localStorage.setItem("userEmail", response.data.email);
+        }
+      } catch (error) {
+        console.error("Error fetching user email:", error);
+      }
+    };
+
+    // Only fetch user email if it's not already in localStorage
+    if (!localStorage.getItem("userEmail")) {
+      fetchUserEmail();
+    }
+
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, navigate]);
@@ -88,26 +111,107 @@ const Home = () => {
     navigate("/login");
   };
 
-  // Update handleComment to refresh posts after adding a comment
+  // Update handleComment with enhanced error handling and user feedback
   const handleComment = async (postId) => {
     if (!commentText[postId]?.trim()) return;
 
+    // Store the comment text before clearing input
+    const commentContent = commentText[postId];
+
+    // Create the new comment object
+    const newComment = {
+      id: `temp-${Date.now()}`, // Temporary ID until server response
+      content: commentContent,
+      createdAt: new Date().toISOString(),
+      author: {
+        email: localStorage.getItem("userEmail") || "You", // Use stored email or default
+      },
+      isPending: true, // Add a flag to show this is not yet confirmed
+    };
+
+    // Optimistically update the UI
+    const updatedPosts = posts.map((post) => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: [...(post.comments || []), newComment],
+          _count: {
+            ...post._count,
+            comments: (post._count?.comments || 0) + 1,
+          },
+        };
+      }
+      return post;
+    });
+
+    // Update state immediately
+    setPost(updatedPosts);
+    // Clear comment input immediately for better UX
+    setCommentText((prev) => ({ ...prev, [postId]: "" }));
+
     try {
       setError(null);
-      await axios.post(
+      const response = await axios.post(
         `${BASE_URL}/api/posts/${postId}/comment`,
-        { content: commentText[postId] },
+        { content: commentContent },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setCommentText((prev) => ({ ...prev, [postId]: "" }));
-      // Refresh posts after adding a comment
-      fetchPosts(currentPage);
+
+      // If successful, update the comment with the real ID and data from server
+      if (response.data) {
+        const serverComment = response.data;
+        console.log("Server comment response:", serverComment); // Debug the server response
+        console.log("Comment content sent:", commentContent); // Log what we originally sent
+
+        setPost((currentPosts) =>
+          currentPosts.map((post) => {
+            if (post.id === postId) {
+              return {
+                ...post,
+                comments: post.comments.map((c) =>
+                  c.id === newComment.id
+                    ? {
+                        ...serverComment,
+                        isPending: false,
+                        // Ensure content is preserved
+                        content: serverComment.content || commentContent,
+                      }
+                    : c
+                ),
+              };
+            }
+            return post;
+          })
+        );
+      }
     } catch (error) {
+      // Revert optimistic update on failure
       setError("Failed to add comment. Please try again.");
+      setPost(
+        posts.map((post) => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              comments: (post.comments || []).filter(
+                (c) => c.id !== newComment.id
+              ),
+              _count: {
+                ...post._count,
+                comments: (post._count?.comments || 0) - 1,
+              },
+            };
+          }
+          return post;
+        })
+      );
+
+      // Restore the comment text so user doesn't lose their input
+      setCommentText((prev) => ({ ...prev, [postId]: commentContent }));
+
       console.error("Error adding comment:", error);
       if (error.response?.status === 401) {
         handleLogout();
@@ -115,8 +219,36 @@ const Home = () => {
     }
   };
 
-  // Update handleLike to refresh posts after liking
+  // Update handleLike with improved error handling
   const handleLike = async (postId) => {
+    // Check if this post is already liked by the current user
+    const currentPost = posts.find((p) => p.id === postId);
+    const isCurrentlyLiked = currentPost?.isLikedByCurrentUser || false;
+
+    // Store the original posts state for potential rollback
+    const originalPosts = [...posts];
+
+    // Optimistically update the UI
+    const updatedPosts = posts.map((post) => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          isLikedByCurrentUser: !isCurrentlyLiked,
+          _count: {
+            ...post._count,
+            likes: isCurrentlyLiked
+              ? (post._count?.likes || 1) - 1
+              : (post._count?.likes || 0) + 1,
+          },
+          likeInProgress: true, // Add a flag to indicate the operation is in progress
+        };
+      }
+      return post;
+    });
+
+    // Update state immediately
+    setPost(updatedPosts);
+
     try {
       setError(null);
       await axios.post(
@@ -128,10 +260,20 @@ const Home = () => {
           },
         }
       );
-      // Refresh posts after liking
-      fetchPosts(currentPage);
+
+      // Action succeeded - remove the in-progress flag
+      setPost((currentPosts) =>
+        currentPosts.map((post) =>
+          post.id === postId ? { ...post, likeInProgress: false } : post
+        )
+      );
     } catch (error) {
+      // Revert optimistic update on failure
       setError("Failed to like post. Please try again.");
+
+      // Restore original state
+      setPost(originalPosts);
+
       console.error("Error liking post:", error);
       if (error.response?.status === 401) {
         handleLogout();
@@ -196,6 +338,26 @@ const Home = () => {
 
   const handlePostClick = (postId) => {
     navigate(`/posts/${postId}`);
+  };
+
+  const formatCommentDate = (dateString) => {
+    try {
+      // Check if the date is valid
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Just now"; // Fallback for invalid dates
+      }
+
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return "Just now"; // Fallback if any error occurs
+    }
   };
 
   if (loading) {
@@ -361,11 +523,20 @@ const Home = () => {
                       <div className="flex items-center space-x-4">
                         <button
                           onClick={() => handleLike(post.id)}
-                          className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors"
+                          className={`flex items-center space-x-1 transition-colors ${
+                            post.isLikedByCurrentUser
+                              ? "text-red-500 hover:text-red-600"
+                              : "text-gray-500 hover:text-blue-600"
+                          } ${
+                            post.likeInProgress ? "opacity-50 cursor-wait" : ""
+                          }`}
+                          disabled={post.likeInProgress}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
+                            className={`h-5 w-5 ${
+                              post.likeInProgress ? "animate-pulse" : ""
+                            }`}
                             viewBox="0 0 20 20"
                             fill="currentColor"
                           >
@@ -426,21 +597,23 @@ const Home = () => {
                             {post.comments.slice(0, 2).map((comment) => (
                               <div
                                 key={comment.id}
-                                className="bg-gray-50 rounded-lg p-3"
+                                className={`bg-gray-50 rounded-lg p-3 ${
+                                  comment.isPending
+                                    ? "opacity-70 border border-blue-200 animate-pulse"
+                                    : ""
+                                }`}
                               >
                                 <div className="flex items-center space-x-2 mb-1">
                                   <span className="font-semibold text-gray-800 text-sm">
                                     {comment.author?.email}
+                                    {comment.isPending && (
+                                      <span className="ml-2 text-xs text-blue-500">
+                                        (Sending...)
+                                      </span>
+                                    )}
                                   </span>
                                   <time className="text-gray-500 text-xs">
-                                    {new Date(
-                                      comment.createdAt
-                                    ).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
+                                    {formatCommentDate(comment.createdAt)}
                                   </time>
                                 </div>
                                 <p className="text-gray-600 text-sm">
@@ -573,15 +746,7 @@ const Home = () => {
                           {comment.author?.email}
                         </p>
                         <time className="text-sm text-gray-500">
-                          {new Date(comment.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
+                          {formatCommentDate(comment.createdAt)}
                         </time>
                       </div>
                     </div>

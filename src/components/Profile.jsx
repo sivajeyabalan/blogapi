@@ -10,6 +10,7 @@ const Profile = () => {
   const [posts, setPosts] = useState({ published: [], unpublished: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [editPost, setEditPost] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const token = localStorage.getItem("token");
@@ -33,7 +34,7 @@ const Profile = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/users/profile`, {
+      const response = await axios.get(`${BASE_URL}/api/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -105,16 +106,65 @@ const Profile = () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/posts/${postId}`, {
+      // Log the request details for debugging
+      console.log(`Attempting to delete post ID: ${postId}`);
+      console.log(
+        `Using token: ${token ? "Valid token exists" : "No valid token"}`
+      );
+
+      // Show optimistic UI update
+      setPosts((prevPosts) => ({
+        ...prevPosts,
+        published: prevPosts.published.filter((post) => post.id !== postId),
+        unpublished: prevPosts.unpublished.filter((post) => post.id !== postId),
+      }));
+
+      const response = await axios.delete(`${BASE_URL}/api/posts/${postId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        // Add timeout to prevent long-hanging requests
+        timeout: 10000,
       });
-      // Refresh posts after deletion
+
+      console.log("Delete response:", response);
+
+      // Success message
+      setSuccessMessage("Post deleted successfully");
+      setTimeout(() => setSuccessMessage(""), 3000); // Clear after 3 seconds
+
+      // Refresh posts list
       fetchUserPosts();
     } catch (error) {
       console.error("Error deleting post:", error);
-      setError("Failed to delete post. Please try again.");
+
+      // Log detailed error information
+      if (error.response) {
+        // The server responded with a status code outside the 2xx range
+        console.error("Server response error:", error.response.data);
+        console.error("Status code:", error.response.status);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error("No response received:", error.request);
+      } else {
+        // Something happened in setting up the request
+        console.error("Request setup error:", error.message);
+      }
+
+      // Revert optimistic update by refetching posts
+      fetchUserPosts();
+
+      // Show an appropriate error message based on the response
+      if (error.response && error.response.status === 500) {
+        setError(
+          "Server error when deleting post. The post might be referenced by other data or the server might be experiencing issues."
+        );
+      } else {
+        setError("Failed to delete post. Please try again later.");
+      }
+
+      // Clear error after 5 seconds
+      setTimeout(() => setError(""), 5000);
     }
   };
 
@@ -198,10 +248,8 @@ const Profile = () => {
   };
 
   const handlePostClick = (postId) => {
-    // Implement the logic to navigate to the full post details
-    console.log(`Navigating to full post details for post ID: ${postId}`);
-    // You can use navigate from react-router-dom to navigate to the full post details page
-    navigate(`/post/${postId}`);
+    // Fix the route path to match the one used in Home component
+    navigate(`/posts/${postId}`);
   };
 
   console.log("Token being used:", token);
@@ -245,6 +293,12 @@ const Profile = () => {
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
             {error}
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6">
+            {successMessage}
           </div>
         )}
 
